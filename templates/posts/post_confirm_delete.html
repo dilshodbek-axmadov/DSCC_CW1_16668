@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Delete Post — TripPulse{% endblock %}
+
+{% block content %}
+<div class="confirm-delete-wrapper">
+  <div class="confirm-delete-card">
+    <i class="fa fa-triangle-exclamation confirm-delete-icon"></i>
+    <h2>Delete This Post?</h2>
+    <p>
+      You're about to delete
+      <strong>"{{ post.title|default:"this review" }}"</strong>
+      for <strong>{{ post.place.name }}</strong>.
+      This action cannot be undone.
+    </p>
+    <div class="confirm-delete-actions">
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger">
+          <i class="fa fa-trash"></i> Yes, Delete
+        </button>
+      </form>
+      <a href="{% url 'post_detail' post.pk %}" class="btn-secondary">
+        <i class="fa fa-arrow-left"></i> Cancel
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

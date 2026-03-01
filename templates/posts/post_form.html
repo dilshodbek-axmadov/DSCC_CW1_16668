@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Post — TripPulse{% endblock %}
+
+{% block content %}
+<div class="post-form-wrapper">
+  <div class="post-form-card">
+    <h1><i class="fa fa-pen-nib"></i> {{ action }} Travel Review</h1>
+    <p>Share your experience with the community</p>
+
+    <form method="POST" enctype="multipart/form-data" class="auth-form">
+      {% csrf_token %}
+      {{ form.place }}
+
+      <div class="form-group">
+        <label><i class="fa fa-map-marker-alt"></i> Place</label>
+        <div class="place-search-wrapper">
+          <input
+            type="text"
+            id="placeSearch"
+            placeholder="Search for a place..."
+            value="{{ selected_place_name|default:'' }}"
+            data-selected-place="{{ selected_place_name|default:'' }}"
+            autocomplete="off">
+          <div class="autocomplete-results" id="placeResults"></div>
+        </div>
+
+        <div class="place-actions">
+          <button type="button" id="toggleNewPlace" class="btn-add-place">
+            <i class="fa fa-plus-circle"></i> Create new place
+          </button>
+        </div>
+
+        <div class="new-place-section" id="newPlaceSection"{% if form.new_place_name.value and not form.place.value %} style="display:block;"{% endif %}>
+          <h4><i class="fa fa-plus-circle"></i> Add New Place</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Place Name</label>
+              {{ form.new_place_name }}
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              {{ form.new_place_country }}
+            </div>
+          </div>
+        </div>
+        {% if form.new_place_name.errors %}
+          <span class="form-error">{{ form.new_place_name.errors.0 }}</span>
+        {% endif %}
+        {% if form.new_place_country.errors %}
+          <span class="form-error">{{ form.new_place_country.errors.0 }}</span>
+        {% endif %}
+        {% if form.place.errors %}
+          <span class="form-error">{{ form.place.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_title"><i class="fa fa-heading"></i> Title <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+        {{ form.title }}
+        {% if form.title.errors %}
+          <span class="form-error">{{ form.title.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_content"><i class="fa fa-align-left"></i> Review</label>
+        {{ form.content }}
+        {% if form.content.errors %}
+          <span class="form-error">{{ form.content.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        {{ form.rating }}
+        <label><i class="fa fa-star"></i> Rating</label>
+        <div class="star-picker">
+          {% for i in "12345" %}
+            <span class="star-option {% if form.instance.rating >= forloop.counter %}selected{% endif %}" data-value="{{ forloop.counter }}">
+              <i class="{% if form.instance.rating >= forloop.counter %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
+            </span>
+          {% endfor %}
+        </div>
+        {% if form.rating.errors %}
+          <span class="form-error">{{ form.rating.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label><i class="fa fa-image"></i> Photo <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+        <div class="photo-upload-area">
+          <i class="fa fa-cloud-upload-alt"></i>
+          <p><span>Click to upload</span> or drag and drop</p>
+          {{ form.photo }}
+          {% if form.instance.photo %}
+            <img src="{{ form.instance.photo.url }}" class="photo-preview-img" alt="Current photo">
+          {% endif %}
+        </div>
+        {% if form.photo.errors %}
+          <span class="form-error">{{ form.photo.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="form-error-block">{{ form.non_field_errors.0 }}</div>
+      {% endif %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">
+          <i class="fa fa-save"></i> {{ action }} Post
+        </button>
+        {% if post %}
+          <a href="{% url 'post_detail' post.pk %}" class="btn-secondary">Cancel</a>
+        {% else %}
+          <a href="{% url 'home' %}" class="btn-secondary">Cancel</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

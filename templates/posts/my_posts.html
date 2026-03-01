@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}My Posts — TripPulse{% endblock %}
+
+{% block content %}
+<div class="my-posts-wrapper">
+  <div style="margin-bottom:2rem;">
+    <h1 style="font-size:2rem;"><i class="fa fa-user-pen"></i> My Activity</h1>
+    <p style="color:var(--text-muted);margin-top:.4rem;">Manage your reviews and liked posts</p>
+  </div>
+
+  <div class="my-posts-tabs">
+    <button class="tab-btn active" data-tab="tab-my-posts">
+      <i class="fa fa-newspaper"></i> My Posts
+      <span style="background:var(--terracotta);color:#fff;border-radius:99px;padding:.1rem .5rem;font-size:.75rem;">
+        {{ page_obj.paginator.count }}
+      </span>
+    </button>
+    <button class="tab-btn" data-tab="tab-liked">
+      <i class="fa fa-heart"></i> Liked Posts
+      <span style="background:var(--sand);color:var(--text-secondary);border-radius:99px;padding:.1rem .5rem;font-size:.75rem;">
+        {{ liked_posts.count }}
+      </span>
+    </button>
+  </div>
+
+  <div class="tab-panel active" id="tab-my-posts">
+    {% if page_obj.object_list %}
+      <div class="posts-grid">
+        {% for post in page_obj %}
+          {% include "includes/post_card.html" %}
+        {% endfor %}
+      </div>
+      {% include "includes/pagination.html" %}
+    {% else %}
+      <div class="empty-state">
+        <i class="fa fa-pen-nib"></i>
+        <p>You haven't written any reviews yet. <a href="{% url 'post_create' %}">Share your first story!</a></p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="tab-panel" id="tab-liked">
+    {% if liked_posts %}
+      <div class="posts-grid">
+        {% for post in liked_posts %}
+          {% include "includes/post_card.html" %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <i class="fa fa-heart"></i>
+        <p>You haven't liked any posts yet. <a href="{% url 'home' %}">Discover reviews!</a></p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

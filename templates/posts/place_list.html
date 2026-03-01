@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Places — TripPulse{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <h1><i class="fa fa-map-marker-alt"></i> All Places</h1>
+      <p>Discover destinations reviewed by our traveler community</p>
+    </div>
+    <form method="GET" action="{% url 'place_list' %}">
+      <div class="search-bar-large">
+        <i class="fa fa-search"></i>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by name or country...">
+        <button type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="section">
+  {% if query %}
+    <p style="color:var(--text-muted);margin-bottom:1.5rem;">
+      Results for "<strong>{{ query }}</strong>" — {{ page_obj.paginator.count }} found
+    </p>
+  {% endif %}
+
+  {% if page_obj.object_list %}
+    <div class="places-grid">
+      {% for place in page_obj %}
+        <a href="{% url 'place_detail' place.slug %}" class="place-card">
+          <div class="place-card-icon"><i class="fa fa-map-marker-alt"></i></div>
+          <div class="place-card-name">{{ place.name }}</div>
+          {% if place.country %}
+            <div class="place-card-country"><i class="fa fa-globe"></i> {{ place.country }}</div>
+          {% endif %}
+          <div class="place-card-stats">
+            <div class="place-stat">
+              {% if place.avg_rating %}
+                <span class="stars">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= place.avg_rating %}
+                      <i class="fa-solid fa-star"></i>
+                    {% else %}
+                      <i class="fa-regular fa-star"></i>
+                    {% endif %}
+                  {% endfor %}
+                </span>
+                <span>{{ place.avg_rating|floatformat:1 }}</span>
+              {% else %}
+                <span style="color:var(--text-muted);font-size:.8rem;">No ratings yet</span>
+              {% endif %}
+            </div>
+            <div class="place-stat"><i class="fa fa-pen"></i> {{ place.post_count }} reviews</div>
+          </div>
+          <span class="place-card-link">View reviews <i class="fa fa-arrow-right"></i></span>
+        </a>
+      {% endfor %}
+    </div>
+    {% include "includes/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <i class="fa fa-search"></i>
+      <p>No places found{% if query %} for "{{ query }}"{% endif %}.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

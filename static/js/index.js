@@ -76,9 +76,33 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ── Avatar preview on file select ───────────────── */
     const avatarInput = document.getElementById('id_avatar');
     if (avatarInput) {
+      const avatarClearInput = document.getElementById('id_avatar-clear');
+      const avatarDeleteBtn = document.getElementById('avatarDeleteBtn');
+
+      if (avatarDeleteBtn && avatarClearInput) {
+        avatarDeleteBtn.addEventListener('click', () => {
+          avatarClearInput.checked = true;
+          avatarInput.value = '';
+          const preview = document.getElementById('avatarPreview');
+          if (!preview) return;
+
+          if (preview.tagName === 'IMG') {
+            const placeholder = document.createElement('div');
+            placeholder.id = 'avatarPreview';
+            placeholder.className = 'avatar-preview-placeholder';
+            placeholder.innerHTML = '<i class="fa fa-user"></i>';
+            preview.replaceWith(placeholder);
+          }
+        });
+      }
+
       avatarInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        if (avatarClearInput) {
+          avatarClearInput.checked = false;
+        }
   
         const reader = new FileReader();
         reader.onload = (ev) => {
@@ -180,15 +204,27 @@ document.addEventListener('DOMContentLoaded', () => {
   
           const data = await res.json();
           const icon  = btn.querySelector('i');
-  
+          const label = btn.querySelector('.bookmark-label');
+          const savedLabel = btn.dataset.labelSaved || 'Saved';
+          const unsavedLabel = btn.dataset.labelUnsaved || 'Save';
+
           if (data.bookmarked) {
             icon.classList.remove('fa-regular');
             icon.classList.add('fa-solid');
             btn.classList.add('bookmarked');
+            if (label) label.textContent = savedLabel;
           } else {
             icon.classList.remove('fa-solid');
             icon.classList.add('fa-regular');
             btn.classList.remove('bookmarked');
+            if (label) label.textContent = unsavedLabel;
+
+            // On Saved Posts page, remove the card immediately after unsave.
+            if (savedLabel === 'Unsave') {
+              const card = btn.closest('.post-card');
+              if (card) card.remove();
+              window.location.reload();
+            }
           }
         } catch (err) {
           console.error('Bookmark error:', err);
@@ -200,78 +236,117 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeSearch  = document.getElementById('placeSearch');
     const placeResults = document.getElementById('placeResults');
     const placeIdInput = document.getElementById('id_place');
-  
+    const newPlaceSection = document.getElementById('newPlaceSection');
+    const newPlaceNameInput = document.getElementById('id_new_place_name');
+    const toggleNewPlace = document.getElementById('toggleNewPlace');
+
     if (placeSearch && placeResults) {
       let debounceTimer;
-  
-      placeSearch.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        const q = placeSearch.value.trim();
-  
-        if (q.length < 2) {
-          placeResults.innerHTML = '';
-          placeResults.style.display = 'none';
-          return;
+
+      function hidePlaceResults() {
+        placeResults.innerHTML = '';
+        placeResults.style.display = 'none';
+      }
+
+      function showNewPlaceSection(prefillName = '') {
+        if (!newPlaceSection) return;
+        newPlaceSection.style.display = 'block';
+        if (newPlaceNameInput && prefillName) {
+          newPlaceNameInput.value = prefillName;
         }
-  
-        debounceTimer = setTimeout(async () => {
-          try {
-            const res  = await fetch(`/posts/places/search/?q=${encodeURIComponent(q)}`);
-            const data = await res.json();
-  
-            placeResults.innerHTML = '';
-            if (data.places && data.places.length > 0) {
-              data.places.forEach(place => {
-                const item = document.createElement('div');
-                item.className = 'autocomplete-item';
-                item.textContent = place.name + (place.country ? ` — ${place.country}` : '');
-                item.addEventListener('click', () => {
-                  placeSearch.value  = place.name;
-                  placeIdInput.value = place.id;
-                  placeResults.innerHTML = '';
-                  placeResults.style.display = 'none';
-                  // Hide "new place" form
-                  const newPlaceSection = document.getElementById('newPlaceSection');
-                  if (newPlaceSection) newPlaceSection.style.display = 'none';
-                });
-                placeResults.appendChild(item);
-              });
-  
-              // "Add new place" option
-              const addNew = document.createElement('div');
-              addNew.className = 'autocomplete-item autocomplete-add-new';
-              addNew.innerHTML = '<i class="fa fa-plus-circle"></i> Add "' + q + '" as a new place';
-              addNew.addEventListener('click', () => {
-                placeIdInput.value = '';
-                placeResults.innerHTML = '';
-                placeResults.style.display = 'none';
-                const newPlaceSection = document.getElementById('newPlaceSection');
-                if (newPlaceSection) {
-                  newPlaceSection.style.display = 'block';
-                  const nameField = document.getElementById('id_new_place_name');
-                  if (nameField) nameField.value = q;
-                }
-              });
-              placeResults.appendChild(addNew);
-              placeResults.style.display = 'block';
-            } else {
-              placeResults.style.display = 'none';
-            }
-          } catch (err) {
-            console.error('Place search error:', err);
+        if (placeIdInput) placeIdInput.value = '';
+      }
+
+      function hideNewPlaceSection() {
+        if (!newPlaceSection) return;
+        newPlaceSection.style.display = 'none';
+      }
+
+      function selectPlace(place) {
+        placeSearch.value = place.name;
+        if (placeIdInput) placeIdInput.value = place.id;
+        hideNewPlaceSection();
+        hidePlaceResults();
+      }
+
+      async function renderPlaceResults(query) {
+        const isDefaultList = !query;
+        const limit = isDefaultList ? 5 : 8;
+
+        try {
+          const res = await fetch(`/posts/places/search/?q=${encodeURIComponent(query)}&limit=${limit}`);
+          const data = await res.json();
+          const places = data.places || [];
+          placeResults.innerHTML = '';
+
+          if (!places.length && !query) {
+            hidePlaceResults();
+            return;
           }
-        }, 300);
+
+          if (!places.length && query) {
+            const empty = document.createElement('div');
+            empty.className = 'autocomplete-empty';
+            empty.textContent = 'No matching places found.';
+            placeResults.appendChild(empty);
+          }
+
+          places.forEach((place) => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            const countryText = place.country ? ` - ${place.country}` : '';
+            item.innerHTML = `<div class="place-item-main">${place.name}</div><div class="place-item-sub">${countryText}</div>`;
+            item.addEventListener('click', () => selectPlace(place));
+            placeResults.appendChild(item);
+          });
+
+          const exactExists = places.some((p) => p.name.toLowerCase() === query.toLowerCase());
+          if (query && !exactExists) {
+            const addNew = document.createElement('button');
+            addNew.type = 'button';
+            addNew.className = 'autocomplete-item autocomplete-add-new';
+            addNew.innerHTML = `<i class="fa fa-plus-circle"></i> Create "${query}"`;
+            addNew.addEventListener('click', () => {
+              showNewPlaceSection(query);
+              hidePlaceResults();
+            });
+            placeResults.appendChild(addNew);
+          }
+
+          placeResults.style.display = 'block';
+        } catch (err) {
+          console.error('Place search error:', err);
+        }
+      }
+
+      placeSearch.addEventListener('focus', () => {
+        renderPlaceResults(placeSearch.value.trim());
       });
-  
-      // Close on outside click
+
+      placeSearch.addEventListener('click', () => {
+        renderPlaceResults(placeSearch.value.trim());
+      });
+
+      placeSearch.addEventListener('input', () => {
+        if (placeIdInput) placeIdInput.value = '';
+        clearTimeout(debounceTimer);
+        const query = placeSearch.value.trim();
+        debounceTimer = setTimeout(() => renderPlaceResults(query), 200);
+      });
+
+      if (toggleNewPlace) {
+        toggleNewPlace.addEventListener('click', () => {
+          showNewPlaceSection(placeSearch.value.trim());
+        });
+      }
+
       document.addEventListener('click', (e) => {
         if (!placeSearch.contains(e.target) && !placeResults.contains(e.target)) {
-          placeResults.style.display = 'none';
+          hidePlaceResults();
         }
       });
     }
-  
-    /* ── Star rating picker ───────────────────────────── */
+
     const starPicker = document.querySelector('.star-picker');
     if (starPicker) {
       const stars  = starPicker.querySelectorAll('.star-option');
@@ -331,3 +406,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
   });
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+
+  /* Tab switching (My Posts page) */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      const panel = document.getElementById(target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  /* Photo upload preview (post form) */
+  const photoInput = document.getElementById('id_photo');
+  if (photoInput) {
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const area = photoInput.closest('.photo-upload-area');
+        let preview = area.querySelector('.photo-preview-img');
+        if (!preview) {
+          preview = document.createElement('img');
+          preview.className = 'photo-preview-img';
+          area.appendChild(preview);
+        }
+        preview.src = ev.target.result;
+        area.querySelector('i').style.display = 'none';
+        area.querySelector('p').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+});

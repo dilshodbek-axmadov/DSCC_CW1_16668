@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Saved Posts - TripPulse{% endblock %}
+
+{% block content %}
+<div class="my-posts-wrapper">
+  <div style="margin-bottom:2rem;">
+    <h1 style="font-size:2rem;"><i class="fa fa-bookmark"></i> Saved Posts</h1>
+    <p style="color:var(--text-muted);margin-top:.4rem;">Posts you bookmarked to read later</p>
+  </div>
+
+  {% if page_obj.object_list %}
+    <div class="posts-grid">
+      {% for post in page_obj %}
+        {% include "includes/post_card.html" with is_saved_page=True %}
+      {% endfor %}
+    </div>
+    {% include "includes/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <i class="fa fa-bookmark"></i>
+      <p>You do not have any saved posts yet. <a href="{% url 'place_list' %}">Explore places</a> and save posts you like.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ place.name }} — TripPulse{% endblock %}
+
+{% block content %}
+<div class="place-detail-hero">
+  <div class="place-detail-hero-inner">
+    <div>
+      <h1><i class="fa fa-map-marker-alt"></i> {{ place.name }}</h1>
+      <div class="place-detail-meta">
+        {% if place.country %}
+          <div class="place-meta-item"><i class="fa fa-globe"></i> {{ place.country }}</div>
+        {% endif %}
+        <div class="place-meta-item">
+          {% if place.avg_rating %}
+            <span class="stars">
+              {% for i in "12345" %}
+                {% if forloop.counter <= place.avg_rating %}
+                  <i class="fa-solid fa-star"></i>
+                {% else %}
+                  <i class="fa-regular fa-star"></i>
+                {% endif %}
+              {% endfor %}
+            </span>
+            {{ place.avg_rating|floatformat:1 }} avg rating
+          {% else %}
+            No ratings yet
+          {% endif %}
+        </div>
+        <div class="place-meta-item"><i class="fa fa-pen"></i> {{ place.post_count }} reviews</div>
+      </div>
+    </div>
+    {% if user.is_authenticated %}
+      <a href="{% url 'post_create' %}" class="btn-hero-primary">
+        <i class="fa fa-plus"></i> Write a Review
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="section">
+  {% if page_obj.object_list %}
+    <div class="posts-grid">
+      {% for post in page_obj %}
+        {% include "includes/post_card.html" %}
+      {% endfor %}
+    </div>
+    {% include "includes/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <i class="fa fa-pen-nib"></i>
+      <p>No reviews for this place yet.
+        {% if user.is_authenticated %}
+          <a href="{% url 'post_create' %}">Be the first!</a>
+        {% else %}
+          <a href="{% url 'register' %}">Join to write one!</a>
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

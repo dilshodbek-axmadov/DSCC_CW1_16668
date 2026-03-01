@@ -20,10 +20,21 @@
                         <i class="fa fa-user"></i>
                     </div>
                 {% endif %}
-                <label for="id_avatar" class="avatar-upload-btn">
-                    <i class="fa fa-camera"></i> Change Photo
-                </label>
-                {{ form.avatar }}
+                <div class="avatar-upload-actions">
+                    <label for="id_avatar" class="avatar-upload-btn">
+                        <i class="fa fa-camera"></i> Change Photo
+                    </label>
+                    {% if request.user.avatar %}
+                        <button type="button" id="avatarDeleteBtn" class="avatar-delete-btn">
+                            <i class="fa fa-trash"></i> Delete Photo
+                        </button>
+                    {% endif %}
+                </div>
+                <input type="file" name="avatar" id="id_avatar" accept="image/*">
+                <input type="checkbox" name="avatar-clear" id="id_avatar-clear" hidden>
+                {% if form.avatar.errors %}
+                    <span class="form-error">{{ form.avatar.errors.0 }}</span>
+                {% endif %}
             </div>
 
             <div class="form-row">

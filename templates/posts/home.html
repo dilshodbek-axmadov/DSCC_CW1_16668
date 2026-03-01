@@ -1,50 +1,81 @@
 {% extends "base.html" %}
-{% block title %}TripPulse - Travel Stories That Feel Real{% endblock %}
+{% block title %}TripPulse — Discover the World{% endblock %}
 
 {% block content %}
-<section class="landing-hero">
-    <div class="landing-glow landing-glow-left"></div>
-    <div class="landing-glow landing-glow-right"></div>
-    <div class="landing-container">
-        <p class="landing-kicker">Travel Journal Community</p>
-        <h1>Discover places through honest traveler stories</h1>
-        <p class="landing-subtitle">
-            TripPulse helps you find where to go next using real experiences, ratings, and photos from people who have already been there.
-        </p>
-        <div class="landing-actions">
-            <a href="{% url 'place_list' %}" class="btn-primary">
-                <i class="fa fa-compass"></i> Explore Places
-            </a>
-            {% if user.is_authenticated %}
-                <a href="{% url 'post_create' %}" class="btn-secondary">
-                    <i class="fa fa-pen"></i> Share a Story
-                </a>
-            {% else %}
-                <a href="{% url 'register' %}" class="btn-secondary">
-                    <i class="fa fa-user-plus"></i> Join Free
-                </a>
-            {% endif %}
-        </div>
+<section class="hero">
+  <div class="hero-content">
+    <h1>Travel Stories From Real Explorers</h1>
+    <p>Discover authentic reviews, hidden gems, and unforgettable destinations shared by travelers worldwide.</p>
+    <div class="hero-actions">
+      <a href="{% url 'place_list' %}" class="btn-hero-primary"><i class="fa fa-map-marker-alt"></i> Explore Places</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'post_create' %}" class="btn-hero-secondary"><i class="fa fa-pen"></i> Write a Review</a>
+      {% else %}
+        <a href="{% url 'register' %}" class="btn-hero-secondary"><i class="fa fa-user-plus"></i> Join Free</a>
+      {% endif %}
     </div>
+  </div>
 </section>
 
-<section class="landing-highlights">
-    <div class="landing-container landing-grid">
-        <article class="landing-card">
-            <i class="fa fa-map-location-dot"></i>
-            <h3>Curated Places</h3>
-            <p>Search destinations quickly and see what travelers really think.</p>
-        </article>
-        <article class="landing-card">
-            <i class="fa fa-star"></i>
-            <h3>Authentic Ratings</h3>
-            <p>Read practical insights, not generic ad-style descriptions.</p>
-        </article>
-        <article class="landing-card">
-            <i class="fa fa-camera-retro"></i>
-            <h3>Visual Stories</h3>
-            <p>Follow photo-rich posts that make trip planning easier.</p>
-        </article>
+<div class="section">
+  <div class="section-header">
+    <h2><i class="fa fa-fire"></i> Top Rated Places</h2>
+    <a href="{% url 'place_list' %}">View all <i class="fa fa-arrow-right"></i></a>
+  </div>
+  {% if top_places %}
+    <div class="places-grid">
+      {% for place in top_places %}
+        <a href="{% url 'place_detail' place.slug %}" class="place-card">
+          <div class="place-card-icon"><i class="fa fa-map-marker-alt"></i></div>
+          <div class="place-card-name">{{ place.name }}</div>
+          {% if place.country %}
+            <div class="place-card-country"><i class="fa fa-globe"></i> {{ place.country }}</div>
+          {% endif %}
+          <div class="place-card-stats">
+            <div class="place-stat">
+              <span class="stars">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= place.avg_rating %}
+                    <i class="fa-solid fa-star"></i>
+                  {% else %}
+                    <i class="fa-regular fa-star"></i>
+                  {% endif %}
+                {% endfor %}
+              </span>
+              <span>{{ place.avg_rating|floatformat:1 }}</span>
+            </div>
+            <div class="place-stat"><i class="fa fa-pen"></i> {{ place.post_count }}</div>
+          </div>
+          <span class="place-card-link">Explore <i class="fa fa-arrow-right"></i></span>
+        </a>
+      {% endfor %}
     </div>
-</section>
+  {% else %}
+    <div class="empty-state">
+      <i class="fa fa-map"></i>
+      <p>No places yet. <a href="{% url 'post_create' %}">Be the first to add one!</a></p>
+    </div>
+  {% endif %}
+</div>
+
+<hr class="section-divider">
+
+<div class="section">
+  <div class="section-header">
+    <h2><i class="fa fa-clock"></i> Recent Reviews</h2>
+    <a href="{% url 'place_list' %}">Browse all <i class="fa fa-arrow-right"></i></a>
+  </div>
+  {% if recent_posts %}
+    <div class="posts-grid">
+      {% for post in recent_posts %}
+        {% include "includes/post_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fa fa-newspaper"></i>
+      <p>No reviews yet. <a href="{% url 'post_create' %}">Share your first story!</a></p>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}

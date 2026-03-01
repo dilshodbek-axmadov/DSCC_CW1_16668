@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title|default:post.place.name }} — TripPulse{% endblock %}
+
+{% block content %}
+<div class="post-detail-wrapper">
+  <div class="post-detail-card">
+
+    {% if post.photo %}
+      <img src="{{ post.photo.url }}" alt="{{ post.title }}" class="post-detail-photo">
+    {% endif %}
+
+    <div class="post-detail-body">
+      <div class="post-detail-breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <i class="fa fa-chevron-right"></i>
+        <a href="{% url 'place_list' %}">Places</a>
+        <i class="fa fa-chevron-right"></i>
+        <a href="{% url 'place_detail' post.place.slug %}">{{ post.place.name }}</a>
+        <i class="fa fa-chevron-right"></i>
+        <span>Review</span>
+      </div>
+
+      <h1 class="post-detail-title">{{ post.title|default:"Travel Review" }}</h1>
+
+      <div class="post-detail-meta">
+        <div class="post-author-info">
+          {% if post.author.avatar %}
+            <img src="{{ post.author.avatar.url }}" alt="avatar" class="post-author-avatar">
+          {% else %}
+            <div class="post-author-avatar-placeholder"><i class="fa fa-user"></i></div>
+          {% endif %}
+          <div>
+            <div class="post-author-name">{{ post.author.get_full_name }}</div>
+            <div class="post-author-date">{{ post.created_at|date:"F d, Y" }}</div>
+          </div>
+        </div>
+
+        <div class="post-detail-rating">
+          {% for i in "12345" %}
+            {% if forloop.counter <= post.rating %}
+              <i class="fa-solid fa-star" style="color:var(--gold)"></i>
+            {% else %}
+              <i class="fa-regular fa-star" style="color:var(--sand)"></i>
+            {% endif %}
+          {% endfor %}
+          <span style="font-size:.85rem;color:var(--text-muted);margin-left:.3rem;">{{ post.rating }}/5</span>
+        </div>
+      </div>
+
+      <div class="post-detail-content">{{ post.content|linebreaks }}</div>
+
+      <div class="post-detail-actions">
+        <button
+          class="action-btn like-btn {% if is_liked %}liked{% endif %}"
+          data-post-id="{{ post.pk }}">
+          <i class="{% if is_liked %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+          <span class="like-count">{{ post.like_count }}</span> Likes
+        </button>
+
+        <button
+          class="action-btn bookmark-btn {% if is_bookmarked %}bookmarked{% endif %}"
+          data-post-id="{{ post.pk }}">
+          <i class="{% if is_bookmarked %}fa-solid{% else %}fa-regular{% endif %} fa-bookmark"></i>
+          {% if is_bookmarked %}Saved{% else %}Save{% endif %}
+        </button>
+
+        <span class="action-btn" style="cursor:default;">
+          <i class="fa fa-comment"></i> {{ comments.count }} Comments
+        </span>
+
+        {% if post.author == request.user %}
+          <div class="post-detail-owner-actions">
+            <a href="{% url 'post_edit' post.pk %}" class="btn-secondary">
+              <i class="fa fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'post_delete' post.pk %}" class="btn-danger">
+              <i class="fa fa-trash"></i> Delete
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="comments-section">
+      <h3><i class="fa fa-comments"></i> Comments ({{ comments.count }})</h3>
+
+      <div class="comment-form-wrapper">
+        <form method="POST">
+          {% csrf_token %}
+          {{ comment_form.text }}
+          <div class="comment-form-actions">
+            <button type="submit" class="btn-primary">
+              <i class="fa fa-paper-plane"></i> Post Comment
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {% if comments %}
+        <div class="comment-list">
+          {% for comment in comments %}
+            <div class="comment-item">
+              {% if comment.author.avatar %}
+                <img src="{{ comment.author.avatar.url }}" alt="avatar" class="comment-avatar">
+              {% else %}
+                <div class="comment-avatar-placeholder"><i class="fa fa-user"></i></div>
+              {% endif %}
+              <div class="comment-body">
+                <div class="comment-header">
+                  <span class="comment-author">{{ comment.author.get_full_name }}</span>
+                  <span class="comment-date">{{ comment.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="comment-text">{{ comment.text }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:1.5rem 0;">
+          <i class="fa fa-comment-slash"></i>
+          <p>No comments yet. Be the first to comment!</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

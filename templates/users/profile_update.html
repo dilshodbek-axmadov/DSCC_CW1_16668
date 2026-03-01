@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile — TripPulse{% endblock %}
+
+{% block content %}
+<div class="form-page-wrapper">
+    <div class="form-card">
+        <div class="form-card-header">
+            <h1><i class="fa fa-user-edit"></i> Edit Profile</h1>
+            <p>Update your personal information</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="auth-form">
+            {% csrf_token %}
+
+            <div class="avatar-upload-section">
+                {% if request.user.avatar %}
+                    <img src="{{ request.user.avatar.url }}" alt="Current avatar" class="avatar-preview" id="avatarPreview">
+                {% else %}
+                    <div class="avatar-preview-placeholder" id="avatarPreview">
+                        <i class="fa fa-user"></i>
+                    </div>
+                {% endif %}
+                <label for="id_avatar" class="avatar-upload-btn">
+                    <i class="fa fa-camera"></i> Change Photo
+                </label>
+                {{ form.avatar }}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_first_name"><i class="fa fa-user"></i> First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <span class="form-error">{{ form.first_name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_last_name"><i class="fa fa-user"></i> Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <span class="form-error">{{ form.last_name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_bio"><i class="fa fa-align-left"></i> Bio</label>
+                {{ form.bio }}
+                {% if form.bio.errors %}
+                    <span class="form-error">{{ form.bio.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fa fa-save"></i> Save Changes
+                </button>
+                <a href="{% url 'profile' %}" class="btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

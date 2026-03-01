@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Login — TripPulse{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fa fa-globe auth-icon"></i>
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue your journey</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_username"><i class="fa fa-envelope"></i> Email Address</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <span class="form-error">{{ form.username.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">
+                    <i class="fa fa-lock"></i> Password
+                </label>
+                <div class="password-wrapper">
+                    {{ form.password }}
+                    <button type="button" class="toggle-password" data-target="id_password">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                    <span class="form-error">{{ form.password.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="form-error-block">
+                    {{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn-primary btn-full">
+                <i class="fa fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="{% url 'register' %}">Register now</a>
+        </div>
+    </div>
+
+    <div class="auth-banner">
+        <div class="auth-banner-content">
+            <h2>Your Next Adventure Awaits</h2>
+            <p>Join thousands of travelers sharing their experiences around the globe.</p>
+            <ul class="auth-features">
+                <li><i class="fa fa-check-circle"></i> Read full travel posts</li>
+                <li><i class="fa fa-check-circle"></i> Like and comment on reviews</li>
+                <li><i class="fa fa-check-circle"></i> Save your favorite places</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

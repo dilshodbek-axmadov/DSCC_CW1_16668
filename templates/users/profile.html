@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ user.get_full_name }} — TripPulse{% endblock %}
+
+{% block content %}
+<div class="profile-wrapper">
+    <div class="profile-header">
+        <div class="profile-avatar-wrapper">
+            {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="avatar" class="profile-avatar">
+            {% else %}
+                <div class="profile-avatar-placeholder">
+                    <i class="fa fa-user"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h1>{{ user.get_full_name }}</h1>
+            <p class="profile-email"><i class="fa fa-envelope"></i> {{ user.email }}</p>
+            {% if user.bio %}
+                <p class="profile-bio">{{ user.bio }}</p>
+            {% endif %}
+            <div class="profile-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ user.posts.count }}</span>
+                    <span class="stat-label">Posts</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ user.likes.count }}</span>
+                    <span class="stat-label">Likes Given</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ user.comments.count }}</span>
+                    <span class="stat-label">Comments</span>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <a href="{% url 'profile_update' %}" class="btn-primary">
+                    <i class="fa fa-edit"></i> Edit Profile
+                </a>
+                <a href="{% url 'my_posts' %}" class="btn-secondary">
+                    <i class="fa fa-newspaper"></i> My Posts
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-recent">
+        <h2><i class="fa fa-clock"></i> Recent Posts</h2>
+        {% if user.posts.all %}
+            <div class="posts-grid">
+                {% for post in user.posts.all|slice:":3" %}
+                    {% include "includes/post_card.html" %}
+                {% endfor %}
+            </div>
+            {% if user.posts.count > 3 %}
+                <div class="view-all">
+                    <a href="{% url 'my_posts' %}" class="btn-secondary">View All Posts</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fa fa-pen-nib"></i>
+                <p>No posts yet. <a href="{% url 'post_create' %}">Share your first travel story!</a></p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

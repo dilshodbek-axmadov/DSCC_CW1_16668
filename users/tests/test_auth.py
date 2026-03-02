@@ -13,12 +13,15 @@ def test_register_page_loads(client):
 
 @pytest.mark.django_db
 def test_user_can_register(client):
-    resp = client.post(reverse("register"), {
-        "email": "test@example.com",
-        "first_name": "Test",
-        "last_name": "User",
-        "password1": "StrongPass123!",
-        "password2": "StrongPass123!",
-    })
+    resp = client.post(
+        reverse("register"),
+        {
+            "email": "test@example.com",
+            "first_name": "Test",
+            "last_name": "User",
+            "password1": "StrongPass123!",
+            "password2": "StrongPass123!",
+        },
+    )
     assert resp.status_code in (200, 302)
     assert User.objects.filter(email="test@example.com").exists()

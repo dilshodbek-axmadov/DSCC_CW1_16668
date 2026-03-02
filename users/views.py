@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegisterForm, LoginForm, ProfileUpdateForm
@@ -43,7 +43,9 @@ def profile_view(request):
 
 @login_required
 def profile_update_view(request):
-    form = ProfileUpdateForm(request.POST or None, request.FILES or None, instance=request.user)
+    form = ProfileUpdateForm(
+        request.POST or None, request.FILES or None, instance=request.user
+    )
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Profile updated successfully!")

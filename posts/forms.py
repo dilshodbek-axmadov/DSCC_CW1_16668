@@ -12,18 +12,22 @@ class PostForm(forms.ModelForm):
     new_place_name = forms.CharField(
         max_length=200,
         required=False,
-        widget=forms.TextInput(attrs={
-            "id": "id_new_place_name",
-            "placeholder": "e.g. Eiffel Tower",
-        }),
+        widget=forms.TextInput(
+            attrs={
+                "id": "id_new_place_name",
+                "placeholder": "e.g. Eiffel Tower",
+            }
+        ),
     )
     new_place_country = forms.CharField(
         max_length=100,
         required=False,
-        widget=forms.TextInput(attrs={
-            "id": "id_new_place_country",
-            "placeholder": "e.g. France",
-        }),
+        widget=forms.TextInput(
+            attrs={
+                "id": "id_new_place_country",
+                "placeholder": "e.g. France",
+            }
+        ),
     )
 
     class Meta:
@@ -56,5 +60,7 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ("text",)
         widgets = {
-            "text": forms.Textarea(attrs={"rows": 3, "placeholder": "Write a comment..."}),
+            "text": forms.Textarea(
+                attrs={"rows": 3, "placeholder": "Write a comment..."}
+            ),
         }

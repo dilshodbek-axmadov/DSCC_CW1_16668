@@ -63,11 +63,17 @@ def home_view(request):
         .filter(post_count__gte=1)
         .order_by("-avg_rating", "-post_count")[:6]
     )
-    recent_posts = Post.objects.select_related("author", "place").order_by("-created_at")[:6]
-    return render(request, "posts/home.html", {
-        "top_places": top_places,
-        "recent_posts": recent_posts,
-    })
+    recent_posts = Post.objects.select_related("author", "place").order_by(
+        "-created_at"
+    )[:6]
+    return render(
+        request,
+        "posts/home.html",
+        {
+            "top_places": top_places,
+            "recent_posts": recent_posts,
+        },
+    )
 
 
 def place_list_view(request):
@@ -87,24 +93,35 @@ def place_list_view(request):
 
 def place_detail_view(request, slug):
     place = get_object_or_404(
-        Place.objects.annotate(avg_rating=Avg("posts__rating"), post_count=Count("posts")),
+        Place.objects.annotate(
+            avg_rating=Avg("posts__rating"), post_count=Count("posts")
+        ),
         slug=slug,
     )
-    posts = Post.objects.filter(place=place).select_related("author").annotate(
-        like_count=Count("likes")
-    ).order_by("-created_at")
+    posts = (
+        Post.objects.filter(place=place)
+        .select_related("author")
+        .annotate(like_count=Count("likes"))
+        .order_by("-created_at")
+    )
     paginator = Paginator(posts, 8)
     page_obj = paginator.get_page(request.GET.get("page"))
-    return render(request, "posts/place_detail.html", {
-        "place": place,
-        "page_obj": page_obj,
-    })
+    return render(
+        request,
+        "posts/place_detail.html",
+        {
+            "place": place,
+            "page_obj": page_obj,
+        },
+    )
 
 
 @login_required
 def post_detail_view(request, pk):
     post = get_object_or_404(
-        Post.objects.select_related("author", "place").annotate(like_count=Count("likes")),
+        Post.objects.select_related("author", "place").annotate(
+            like_count=Count("likes")
+        ),
         pk=pk,
     )
     comments = post.comments.select_related("author").order_by("created_at")
@@ -122,13 +139,17 @@ def post_detail_view(request, pk):
             messages.success(request, "Comment added!")
             return redirect("post_detail", pk=post.pk)
 
-    return render(request, "posts/post_detail.html", {
-        "post": post,
-        "comments": comments,
-        "is_liked": is_liked,
-        "is_bookmarked": is_bookmarked,
-        "comment_form": comment_form,
-    })
+    return render(
+        request,
+        "posts/post_detail.html",
+        {
+            "post": post,
+            "comments": comments,
+            "is_liked": is_liked,
+            "is_bookmarked": is_bookmarked,
+            "comment_form": comment_form,
+        },
+    )
 
 
 @login_required
@@ -142,11 +163,15 @@ def post_create_view(request):
         post.save()
         messages.success(request, "Post created successfully!")
         return redirect("post_detail", pk=post.pk)
-    return render(request, "posts/post_form.html", {
-        "form": form,
-        "action": "Create",
-        "selected_place_name": _get_selected_place_name(form),
-    })
+    return render(
+        request,
+        "posts/post_form.html",
+        {
+            "form": form,
+            "action": "Create",
+            "selected_place_name": _get_selected_place_name(form),
+        },
+    )
 
 
 @login_required
@@ -159,12 +184,16 @@ def post_edit_view(request, pk):
         updated_post.save()
         messages.success(request, "Post updated successfully!")
         return redirect("post_detail", pk=post.pk)
-    return render(request, "posts/post_form.html", {
-        "form": form,
-        "action": "Edit",
-        "post": post,
-        "selected_place_name": _get_selected_place_name(form, instance=post),
-    })
+    return render(
+        request,
+        "posts/post_form.html",
+        {
+            "form": form,
+            "action": "Edit",
+            "post": post,
+            "selected_place_name": _get_selected_place_name(form, instance=post),
+        },
+    )
 
 
 @login_required
@@ -179,25 +208,35 @@ def post_delete_view(request, pk):
 
 @login_required
 def my_posts_view(request):
-    posts = Post.objects.filter(author=request.user).annotate(
-        like_count=Count("likes")
-    ).order_by("-created_at")
-    liked_posts = Post.objects.filter(likes__user=request.user).annotate(
-        like_count=Count("likes")
-    ).order_by("-created_at")
+    posts = (
+        Post.objects.filter(author=request.user)
+        .annotate(like_count=Count("likes"))
+        .order_by("-created_at")
+    )
+    liked_posts = (
+        Post.objects.filter(likes__user=request.user)
+        .annotate(like_count=Count("likes"))
+        .order_by("-created_at")
+    )
     paginator = Paginator(posts, 9)
     page_obj = paginator.get_page(request.GET.get("page"))
-    return render(request, "posts/my_posts.html", {
-        "page_obj": page_obj,
-        "liked_posts": liked_posts,
-    })
+    return render(
+        request,
+        "posts/my_posts.html",
+        {
+            "page_obj": page_obj,
+            "liked_posts": liked_posts,
+        },
+    )
 
 
 @login_required
 def saved_posts_view(request):
-    saved_posts = Post.objects.filter(bookmarks__user=request.user).annotate(
-        like_count=Count("likes", distinct=True)
-    ).order_by("-created_at")
+    saved_posts = (
+        Post.objects.filter(bookmarks__user=request.user)
+        .annotate(like_count=Count("likes", distinct=True))
+        .order_by("-created_at")
+    )
     paginator = Paginator(saved_posts, 9)
     page_obj = paginator.get_page(request.GET.get("page"))
     return render(request, "posts/saved_posts.html", {"page_obj": page_obj})

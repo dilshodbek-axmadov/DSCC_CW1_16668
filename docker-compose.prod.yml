@@ -12,7 +12,7 @@ services:
 
 
   web:
-    build: .
+    image: dilshodaxmadov/trip-pulse:latest
     depends_on:
       - db
     env_file:

@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - .env.local
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # For local debugging you *can* expose it; for server remove this:
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    depends_on:
+      - db
+    env_file:
+      - .env.local
+    volumes:
+      - staticfiles:/app/staticfiles
+      - media:/app/media
+
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - web
+    ports:
+      - "8001:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - staticfiles:/vol/static
+      - media:/vol/media
+
+volumes:
+  postgres_data:
+  staticfiles:
+  media:

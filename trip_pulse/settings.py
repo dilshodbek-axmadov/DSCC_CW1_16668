@@ -31,9 +31,10 @@ DEBUG = os.environ.get("DEBUG") == "True"
 
 # allowed host
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    "DJANGO_CSRF_TRUSTED_ORIGINS", "https://127.0.0.1"
-).split(",")
+CSRF_TRUSTED_ORIGINS = [
+    "https://trip-pulse.uz",
+    "https://www.trip-pulse.uz",
+]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 

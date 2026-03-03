@@ -21,7 +21,9 @@ class Place(models.Model):
             base_slug = slugify(self.name) or "place"
             slug_candidate = base_slug
             counter = 2
-            while Place.objects.filter(slug=slug_candidate).exclude(pk=self.pk).exists():
+            while (
+                Place.objects.filter(slug=slug_candidate).exclude(pk=self.pk).exists()
+            ):
                 slug_candidate = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug_candidate

@@ -38,6 +38,11 @@ class PostForm(forms.ModelForm):
             "rating": forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Allow creating a post with a new place (without selecting existing place).
+        self.fields["place"].required = False
+
     def clean(self):
         cleaned_data = super().clean()
         place = cleaned_data.get("place")

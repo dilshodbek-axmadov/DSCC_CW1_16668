@@ -241,19 +241,14 @@ On every push to `main`, `.github/workflows/deploy.yml` runs:
 
 ## Screenshots of Running Application
 
-Add your screenshots under `docs/screenshots/` and update these links:
-
-- Home page: `docs/screenshots/home.png`
-- Create post page: `docs/screenshots/create-post.png`
-- My Posts: `docs/screenshots/my_posts.png`
-
-Example markdown:
-
-```md
+### Home Page
 ![Home Page](docs/screenshots/home.png)
+
+### Create Post Page
 ![Create Post](docs/screenshots/create.png)
+
+### My Posts
 ![My Posts](docs/screenshots/my_posts.png)
-```
 
 ## Future Improvements
 
@@ -263,4 +258,3 @@ Example markdown:
 - Add automated database backups
 - Integrate cloud storage for media files
 - Add monitoring and logging stack
-

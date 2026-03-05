@@ -73,7 +73,7 @@ Docker services:
 ### 1. Clone repository
 
 ```bash
-git clone https://github.com/<your-username>/trip-pulse.git
+git clone https://github.com/dilshodbek-axmadov/DSCC_CW1_16668.git
 cd trip-pulse
 ```
 
@@ -108,7 +108,7 @@ CSRF_TRUSTED_ORIGINS=http://127.0.0.1:8000,http://localhost:8000
 
 DB_NAME=trip_pulse
 DB_USER=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=password
 DB_HOST=localhost
 DB_PORT=5432
 ```
@@ -163,7 +163,7 @@ sudo apt install -y docker.io docker-compose-plugin certbot
 ### 2. Clone repository on server
 
 ```bash
-git clone https://github.com/<your-username>/trip-pulse.git
+git clone https://github.com/dilshodbek-axmadov/DSCC_CW1_16668.git
 cd trip-pulse
 ```
 
@@ -175,7 +175,7 @@ Create `.env.prod`:
 DEBUG=False
 SECRET_KEY=your-strong-secret-key
 ALLOWED_HOSTS=trip-pulse.uz,www.trip-pulse.uz
-CSRF_TRUSTED_ORIGINS=https://trip-pulse.uz,https://www.trip-pulse.uz
+CSRF_TRUSTED_ORIGINS=https://your_domain.uz,https://www.your_domain.uz
 
 DB_NAME=trip_pulse
 DB_USER=postgres
@@ -245,16 +245,14 @@ Add your screenshots under `docs/screenshots/` and update these links:
 
 - Home page: `docs/screenshots/home.png`
 - Create post page: `docs/screenshots/create-post.png`
-- Django admin: `docs/screenshots/admin.png`
-- Running containers (`docker compose ps`): `docs/screenshots/containers.png`
+- My Posts: `docs/screenshots/my_posts.png`
 
 Example markdown:
 
 ```md
 ![Home Page](docs/screenshots/home.png)
-![Create Post](docs/screenshots/create-post.png)
-![Django Admin](docs/screenshots/admin.png)
-![Docker Containers](docs/screenshots/containers.png)
+![Create Post](docs/screenshots/create.png)
+![My Posts](docs/screenshots/my_posts.png)
 ```
 
 ## Future Improvements
@@ -266,7 +264,3 @@ Example markdown:
 - Integrate cloud storage for media files
 - Add monitoring and logging stack
 
-## Author
-
-Dilshodbek Axmadov  
-Westminster International University in Tashkent
